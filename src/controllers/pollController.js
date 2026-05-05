@@ -156,7 +156,7 @@ exports.votePoll = async(req,res)=>{
             return res.status(400).json({message:"Invalid PollId and userId"})
         }
 
-        const invalidIds = optionIds.filter((id)=>mongoose.Types.ObjectId.isValid(id));
+        const invalidIds = optionIds.filter((id)=>!mongoose.Types.ObjectId.isValid(id));
 
         if(invalidIds.length > 0){
             return res.status(400).json({message:"One or more Invalid OptionIds"})
@@ -180,5 +180,51 @@ exports.votePoll = async(req,res)=>{
         res.status(200).json({message:"Vote Recorded"})
     } catch (error) {
         res.status(500).json({message:error.message});
+    }
+}
+
+exports.updatePoll = async(req,res)=>{
+    try {
+        const {id}=req.params;
+        const {question,options}=req.body;
+
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            return res.status(400).json({message:"Invalid Poll Id"});
+        }
+        if(!question || !Array.isArray(options) || options.length < 2){
+            return res.status(400).json({message:"Question and atleast two options are required"})
+        }
+
+        const poll= await Poll.findByIdAndUpdate(
+            id,
+            {question},
+            {new:true}
+        )
+
+        if(!poll){
+            return res.status(400).json({message:"poll Not Found."})
+        }
+
+        const updateOptions = await Promise.all(
+            options.map(async (opt)=>{
+                if(opt._id && mongoose.Types.ObjectId.isValid(opt._id)){
+                    return await Options.findOneAndUpdate(
+                        {_id:opt._id,pollId:id},
+                        {text:opt.text},
+                        {new:true}
+                    );
+                }else{
+                    return await Options.create({pollId:poll._id,text:opt.text})
+                }
+            })
+        )
+
+        res.status(200).json({
+            message:"Poll Updated Successfully",
+            poll,
+            options:updateOptions.filter(Boolean)})
+
+    } catch (error) {
+        res.status((500)).json({message:error.message})
     }
 }
