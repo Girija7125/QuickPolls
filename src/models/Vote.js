@@ -17,6 +17,8 @@ const voteSchema = new mongoose.Schema({
     }
 },{timestamps:true});
 
+voteSchema.index({pollId:1,userId:1})
+
 
 module.exports= mongoose.model('Vote',voteSchema)
 

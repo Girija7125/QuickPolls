@@ -6,7 +6,8 @@ router.post("/user",controller.createUser);
 router.post("/login",controller.login);
 router.post("/poll",controller.createPollWithOptions);
 router.get("/polls",controller.getPolls);
-router.get("/polls/:id", controller.getPollById)
+router.get("/polls/:id", controller.getPollById);
+router.post("/vote", controller.votePoll)
 
 
 

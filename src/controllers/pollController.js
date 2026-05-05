@@ -145,3 +145,40 @@ exports.getPollById = async(req,res)=>{
     }
 }
 
+exports.votePoll = async(req,res)=>{
+    try {
+        const{pollId,userId,optionIds}=req.body;
+
+        if(!pollId || !userId || !Array.isArray(optionIds) || optionIds.length ===0){
+            return res.status(400).json({message:"pollId,userId and OptionIds are required"})
+        }
+        if(!mongoose.Types.ObjectId.isValid(pollId) || !mongoose.Types.ObjectId.isValid(userId)){
+            return res.status(400).json({message:"Invalid PollId and userId"})
+        }
+
+        const invalidIds = optionIds.filter((id)=>mongoose.Types.ObjectId.isValid(id));
+
+        if(invalidIds.length > 0){
+            return res.status(400).json({message:"One or more Invalid OptionIds"})
+        }
+
+        const valid = await Options.countDocuments({
+            _id:{$in:optionIds},
+            pollId: pollId
+        })
+
+        if(valid !== optionIds.length){
+            return res.status(400).json({message:"One or More Options do not belong to this Poll"})
+        }
+
+        await Vote.findOneAndUpdate(
+            {pollId,userId},
+            {optionIds: [...new Set(optionIds)]},
+            {upsert: true , new:true}
+        )
+
+        res.status(200).json({message:"Vote Recorded"})
+    } catch (error) {
+        res.status(500).json({message:error.message});
+    }
+}
