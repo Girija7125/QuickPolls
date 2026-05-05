@@ -3,7 +3,7 @@ const mongoose= require('mongoose');
 const optionSchema= new mongoose.Schema({
     pollId: {
         type:mongoose.Schema.Types.ObjectId,
-        ref:"poll",
+        ref:"Poll",
         required:true
     },
     text:{

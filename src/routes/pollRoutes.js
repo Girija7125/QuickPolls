@@ -9,6 +9,7 @@ router.get("/polls",controller.getPolls);
 router.get("/polls/:id", controller.getPollById);
 router.post("/vote", controller.votePoll);
 router.put("/polls/:id",    controller.updatePoll);
+router.get("/results/:pollId",  controller.getResults)
 
 
 

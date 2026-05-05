@@ -3,18 +3,18 @@ const mongoose = require('mongoose');
 const voteSchema = new mongoose.Schema({
     pollId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'poll',
+        ref:'Poll',
         required:true
     },
     userId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'user',
+        ref:'User',
         required:true
     },
-    optionId:{
+    optionId:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'options'
-    }
+        ref:'Options'
+    }]
 },{timestamps:true});
 
 voteSchema.index({pollId:1,userId:1})
